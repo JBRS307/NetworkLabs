@@ -1,0 +1,158 @@
+
+!
+! Last configuration change at 09:02:25 UTC Thu Mar 27 2025
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname DSW4
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+vtp domain TEST
+vtp mode transparent
+!
+!
+!
+no ip domain-lookup
+ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+spanning-tree vlan 100 priority 28672
+spanning-tree vlan 200-201 priority 24576
+!
+!
+vlan 100
+ name TRUSTED
+!
+vlan 200
+ name GUEST-PRIM
+  private-vlan primary
+  private-vlan association 201
+!
+vlan 201
+ name GUEST-ISO
+  private-vlan isolated
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ no shutdown
+ switchport trunk allowed vlan 100,200,201
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+!
+interface Ethernet0/1
+ no shutdown
+ switchport trunk allowed vlan 100,200,201
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+!
+interface Ethernet0/2
+ no shutdown
+ no switchport
+ ip address 10.0.0.5 255.255.255.254
+!
+interface Ethernet0/3
+ no shutdown
+ no switchport
+ ip address 10.0.0.3 255.255.255.254
+!
+interface Ethernet1/0
+ no shutdown
+!
+interface Ethernet1/1
+ no shutdown
+!
+interface Ethernet1/2
+ no shutdown
+!
+interface Ethernet1/3
+ no shutdown
+!
+interface Vlan100
+ no shutdown
+ ip address 10.10.0.252 255.255.255.0
+ ip helper-address 10.0.0.100 
+ standby version 2
+ standby 1 ip 10.10.0.254
+!
+interface Vlan200
+ no shutdown
+ ip address 10.20.0.252 255.255.255.0
+ ip access-group GUEST-FILTER in
+ ip helper-address 10.0.0.100 
+ standby version 2
+ standby 2 ip 10.20.0.254
+ standby 2 priority 105
+ standby 2 preempt
+ private-vlan mapping 201
+!
+router ospf 1
+ passive-interface default
+ no passive-interface Ethernet0/2
+ no passive-interface Ethernet0/3
+ network 10.0.0.2 0.0.0.1 area 0
+ network 10.0.0.4 0.0.0.1 area 0
+ network 10.10.0.0 0.0.0.255 area 0
+ network 10.20.0.0 0.0.0.255 area 0
+!
+ip forward-protocol nd
+!
+ip http server
+ip http secure-server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+ip access-list extended GUEST-FILTER
+ deny   ip 10.20.0.0 0.0.0.255 10.10.0.0 0.0.0.255
+ permit udp 10.20.0.0 0.0.0.255 host 10.0.0.100 eq domain
+ permit tcp 10.20.0.0 0.0.0.255 host 10.0.0.100 eq domain
+ deny   ip 10.20.0.0 0.0.0.255 10.0.0.0 0.0.0.255
+ permit ip any any
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end

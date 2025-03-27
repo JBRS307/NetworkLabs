@@ -1,0 +1,138 @@
+
+!
+! Last configuration change at 09:04:08 UTC Thu Mar 27 2025
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+service compress-config
+!
+hostname ASW2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+vtp domain TEST
+vtp mode transparent
+no ip routing
+!
+!
+!
+no ip domain-lookup
+no ip cef
+no ipv6 cef
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+vlan 100
+ name TRUSTED
+!
+vlan 200
+ name GUEST-PRIM
+  private-vlan primary
+  private-vlan association 201
+!
+vlan 201
+ name GUEST-ISO
+  private-vlan isolated
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Ethernet0/0
+ no shutdown
+ switchport trunk allowed vlan 100,200,201
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+!
+interface Ethernet0/1
+ no shutdown
+ switchport trunk allowed vlan 100,200,201
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 999
+ switchport mode trunk
+!
+interface Ethernet0/2
+ no shutdown
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet0/3
+ no shutdown
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/0
+ no shutdown
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/1
+ no shutdown
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Ethernet1/2
+ no shutdown
+ switchport private-vlan host-association 200 201
+ switchport mode private-vlan host
+ spanning-tree portfast edge
+!
+interface Ethernet1/3
+ no shutdown
+ switchport private-vlan host-association 200 201
+ switchport mode private-vlan host
+ spanning-tree portfast edge
+!
+ip forward-protocol nd
+!
+ip http server
+ip http secure-server
+!
+ip ssh server algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+ip ssh client algorithm encryption aes128-ctr aes192-ctr aes256-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+!
+!
+!
+end
